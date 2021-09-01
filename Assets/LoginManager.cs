@@ -9,12 +9,16 @@ public class LoginManager : MonoBehaviour
     public ConnectionManager conn;
 
     public void Login(){
-        conn.ipaddr = IP_addr.text;
+        if(IP_addr.text == ""){
+            Debug.Log("no ip address provided.");
+            conn.ipaddr = "127.0.0.1";
+        }else{
+            conn.ipaddr = IP_addr.text;
+        }
         conn.port = int.Parse(port.text);
-
-        conn.connectToTCPServer();
         
 
+        conn.connectToTCPServer();
     }
 
 }
