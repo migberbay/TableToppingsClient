@@ -17,41 +17,40 @@ public class ConnectionManager : MonoBehaviour
     /// <summary> 	
 	/// Setup socket connection. 	
 	/// </summary> 
-    public void connectToTCPServer(){
-        try {  			
-			clientRecieveThread = new Thread (new ThreadStart(ListenForData)); 			
-			clientRecieveThread.IsBackground = true; 			
+    public void ConnectToTCPServer(){
+        try {
+			clientRecieveThread = new Thread (new ThreadStart(ListenForData));
+			clientRecieveThread.IsBackground = true;
 			clientRecieveThread.Start();
-		} 		
+		}
 		catch (Exception e) { 			
 			Debug.LogException(e, this);	
-		} 	
+		}
     }
 
-    /// <summary> 	
+    /// <summary>
 	/// Runs in background clientReceiveThread; Listens for incomming data. 	
-	/// </summary>     
-	private void ListenForData() { 		
-		try { 			
-			socketConnection = new TcpClient(ipaddr, port);  			
-			Byte[] bytes = new Byte[1024];   
+	/// </summary>
+	private void ListenForData() {
+		try {
+			socketConnection = new TcpClient(ipaddr, port);
+			Byte[] bytes = new Byte[1024];
 
-			while (true) { 				
-				// Get a stream object for reading 				
+			while (true) {
+				// Get a stream object for reading
 				using (NetworkStream stream = socketConnection.GetStream()) { 					
-					int length; 					
+					int length;
 					// Read incomming stream into byte arrary. 					
 					while ((length = stream.Read(bytes, 0, bytes.Length)) != 0) { 						
 						var incommingData = new byte[length]; 						
 						Array.Copy(bytes, 0, incommingData, 0, length); 						
 						// Convert byte array to string message. 						
 						string serverMessage = Encoding.ASCII.GetString(incommingData); 						
-						Debug.Log("server message received as: " + serverMessage); 					
+						Debug.Log("server message received as: " + serverMessage); 
+						ResponseHandler(serverMessage);					
 					} 				
 				} 			
 			}   
-
-
 		}         
 		catch (SocketException socketException) {             
 			Debug.Log("Socket exception: " + socketException);         
@@ -61,7 +60,7 @@ public class ConnectionManager : MonoBehaviour
     /// <summary> 	
 	/// Send message to server using socket connection. 	
 	/// </summary> 	
-	new private void SendMessage(string clientMessage) {         
+	public void SendMessageToServer(string clientMessage) {         
 		if (socketConnection == null) {             
 			return;         
 		}  		
@@ -74,12 +73,19 @@ public class ConnectionManager : MonoBehaviour
 				byte[] clientMessageAsByteArray = Encoding.ASCII.GetBytes(clientMessage); 				
 				// Write byte array to socketConnection stream.                 
 				stream.Write(clientMessageAsByteArray, 0, clientMessageAsByteArray.Length);                 
-				Debug.Log("Client sent his message - should be received by server");             
+				Debug.Log("Client sent message"+ clientMessage);
 			}         
 		} 		
 		catch (SocketException socketException) {             
 			Debug.Log("Socket exception: " + socketException);         
 		}     
 	} 
+
+	/// <summary> 	
+	/// Handle the different Server responses. 	
+	/// </summary>
+	private void ResponseHandler(string message){
+		Debug.Log("handling message "+ message);
+	}
 
 }
