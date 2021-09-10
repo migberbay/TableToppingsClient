@@ -7,6 +7,7 @@ public class LoginManager : MonoBehaviour
 {
     public InputField username, password, IP_addr, port;
     public ConnectionManager conn;
+    public TMPro.TMP_Text errorMsg;
 
     public void Login(){
         if(IP_addr.text == ""){
@@ -17,9 +18,7 @@ public class LoginManager : MonoBehaviour
         }
         conn.port = int.Parse(port.text);
         conn.ConnectToTCPServer();
-        StartCoroutine(
-            SendMessageAfterSeconds("Login \n", 3)
-        );
+        conn.clientRecieveThread.
     }
 
     private IEnumerator SendMessageAfterSeconds(string message, int seconds){

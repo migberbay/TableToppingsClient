@@ -11,8 +11,14 @@ public class ConnectionManager : MonoBehaviour
     public string ipaddr = "127.0.0.1";
     public int port = 30069;
 
-    private TcpClient socketConnection;
-    private Thread clientRecieveThread;
+    public TcpClient socketConnection;
+    public Thread clientRecieveThread;
+	public LoginManager loginManager;
+
+	private void Start() {
+		DontDestroyOnLoad(this.gameObject);
+		
+	}
 
     /// <summary> 	
 	/// Setup socket connection. 	
@@ -85,7 +91,16 @@ public class ConnectionManager : MonoBehaviour
 	/// Handle the different Server responses. 	
 	/// </summary>
 	private void ResponseHandler(string message){
-		Debug.Log("handling message "+ message);
+		var m = message.Split(':');
+		
+		switch (m[0])
+		{
+			case "0": // Login
+				
+
+			default: // Unrecognized code.
+				throw new Exception("Unrecognized code from server.");
+		}
 	}
 
 }
