@@ -14,14 +14,15 @@ public class ConnectionManager : MonoBehaviour
     public TcpClient socketConnection;
     public Thread clientRecieveThread;
 	public LoginManager loginManager;
+	public bool connected = false;
 
 	private void Start() {
 		DontDestroyOnLoad(this.gameObject);
-		
 	}
 
     /// <summary> 	
-	/// Setup socket connection. 	
+	/// Setup socket connection. 
+	/// returns true when socket becomes connected.	
 	/// </summary> 
     public void ConnectToTCPServer(){
         try {
@@ -30,9 +31,22 @@ public class ConnectionManager : MonoBehaviour
 			clientRecieveThread.Start();
 		}
 		catch (Exception e) { 			
-			Debug.LogException(e, this);	
+			Debug.LogException(e, this);
 		}
+		StartCoroutine(AwaitSocketForSeconds(1.5f));
     }
+	
+	public IEnumerator AwaitSocketForSeconds(float seconds){
+		while(socketConnection == null){
+			yield return new WaitForSeconds(seconds);
+		}
+		Debug.Log("out1");
+		while(!socketConnection.Connected){
+			yield return new WaitForSeconds(seconds);
+		}
+		Debug.Log("out2");
+		connected = true;
+	}
 
     /// <summary>
 	/// Runs in background clientReceiveThread; Listens for incomming data. 	
@@ -71,6 +85,8 @@ public class ConnectionManager : MonoBehaviour
 			return;         
 		}  		
 
+		clientMessage = clientMessage +"\n";
+
 		try { 			
 			// Get a stream object for writing. 			
 			NetworkStream stream = socketConnection.GetStream(); 			
@@ -79,27 +95,97 @@ public class ConnectionManager : MonoBehaviour
 				byte[] clientMessageAsByteArray = Encoding.ASCII.GetBytes(clientMessage); 				
 				// Write byte array to socketConnection stream.                 
 				stream.Write(clientMessageAsByteArray, 0, clientMessageAsByteArray.Length);                 
-				Debug.Log("Client sent message"+ clientMessage);
+				Debug.Log("Client sent message "+ clientMessage);
 			}         
 		} 		
-		catch (SocketException socketException) {             
+		catch (SocketException socketException) {
 			Debug.Log("Socket exception: " + socketException);         
-		}     
+		}
 	} 
 
 	/// <summary> 	
 	/// Handle the different Server responses. 	
 	/// </summary>
 	private void ResponseHandler(string message){
-		var m = message.Split(':');
+			var m = message.Split(':');
+			string code, subcode, info;
+		try{
+			code = m[0];
+			subcode = code[1] + "" + code[2];
+			info = m[1];
+		}catch (Exception e){
+			code = "401";
+			subcode = code[1] + "" + code[2];
+			info = m[1];
+		}
 		
-		switch (m[0])
-		{
-			case "0": // Login
-				
 
-			default: // Unrecognized code.
-				throw new Exception("Unrecognized code from server.");
+		// codes:
+		// 0XX -> connection codes.
+		// 1XX -> actions (in game operations)
+		// 2XX -> audio
+		// 3XX -> ----
+		// 4XX -> error codes.
+
+		switch (code[0])
+		{
+			case '0':
+				ConnectionSubcodeHandler(subcode, info);
+				break;
+			case '1':
+				Debug.Log("WIP");
+				break;
+			case '2':
+				Debug.Log("WIP");
+				break;
+			case '3':
+				Debug.Log("WIP");
+				break;
+			case '4':
+				Debug.Log("WIP");
+				ErrorSubcodeHandler(subcode, info);
+				break;
+
+			default: // Unrecognized code pattern
+				Debug.Log("Unrecognized code pattern from server.");
+				break;
+		}
+	}
+
+	private void ConnectionSubcodeHandler(string subcode, string info){
+		switch (subcode)
+		{
+			case "01":
+				string[] status_usr = info.Split(';');
+				if(status_usr[0] == "accepted"){
+					Debug.Log("log the user in.");
+					loginManager.errorMsg.text = "Success!";
+				}
+				if(status_usr[1] == "rejected"){
+					Debug.Log("reject user login.");
+					loginManager.errorMsg.text = "Incorrect credentials";
+				}
+				break;
+
+			default:
+				Debug.Log("subcode not handled.");
+				break;
+		}
+
+				
+	}
+
+
+	private void ErrorSubcodeHandler(string subcode, string info){
+		switch (subcode)
+		{
+			case "01":
+				Debug.Log("Incorrect credentials in login.");
+				break;
+
+			default:
+				Debug.Log("subcode not handled.");
+				break;
 		}
 	}
 
