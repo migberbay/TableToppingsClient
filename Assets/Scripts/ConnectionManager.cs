@@ -128,9 +128,10 @@ public class ConnectionManager : MonoBehaviour
 			subcode = code[1] + "" + code[2];
 			info = m[1];
 		}catch (Exception e){
-			code = "401";
+			code = "400";
 			subcode = code[1] + "" + code[2];
 			info = m[1];
+			ErrorHandler(code, info);
 		}
 		
 
@@ -139,7 +140,7 @@ public class ConnectionManager : MonoBehaviour
 		// 1XX -> actions (in game operations).
 		// 2XX -> audio.
 		// 3XX -> chat codes.
-		// 4XX -> error codes.
+		// 400 -> error code.
 
 		switch (code[0])
 		{
@@ -156,12 +157,11 @@ public class ConnectionManager : MonoBehaviour
 				Debug.Log("WIP");
 				break;
 			case '4':
-				Debug.Log("WIP");
-				ErrorSubcodeHandler(subcode, info);
+				ErrorHandler(code, info);
 				break;
 
 			default: // Unrecognized code pattern
-				Debug.Log("Unrecognized code pattern from server.");
+				MainThreadMessage("Unrecognized code pattern from server.");
 				break;
 		}
 	}
@@ -175,9 +175,9 @@ public class ConnectionManager : MonoBehaviour
 					Debug.Log("log the user in.");
 					MainThreadMessage("Success!");
 				}
-				if(status_usr[1] == "rejected"){
+				if(status_usr[0] == "rejected"){
 					Debug.Log("reject user login.");
-					MainThreadMessage("Incorrect credentials");
+					MainThreadMessage("Incorrect credentials, please try again...");
 				}
 				break;
 
@@ -188,17 +188,8 @@ public class ConnectionManager : MonoBehaviour
 	}
 
 
-	private void ErrorSubcodeHandler(string subcode, string info){
-		switch (subcode)
-		{
-			case "01":
-				MainThreadMessage("Incorrect credentials in login.");
-				break;
-
-			default:
-				Debug.Log("subcode not handled.");
-				break;
-		}
+	private void ErrorHandler(string code, string info){
+		MainThreadMessage("Error"+ code +": "+ info);
 	}
 
 }
