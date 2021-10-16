@@ -33,7 +33,8 @@ public class LoginManager : MonoBehaviour
         if(conn.socketConnection == null){
             Debug.Log("Connecting to server.");
             messages.AddMessageToChat("Connecting to server...");
-            StartCoroutine(AwaitConnectionStablishmentAndSendLogin());
+            // Coroutine r = StartCoroutine(AwaitConnectionStablishmentAndSendLogin());
+            conn.ConnectToTCPServer();
         }else{
             Debug.Log("Already connected to server.");
             conn.SendMessageToServer("Login:"+username.text+","+password.text);
@@ -41,15 +42,12 @@ public class LoginManager : MonoBehaviour
     }
 
     public IEnumerator AwaitConnectionStablishmentAndSendLogin(){
-        conn.ConnectToTCPServer();
-        loginButton.interactable = false;
-        yield return new WaitForSeconds(5f);
-        loginButton.interactable = true;
+        while(!conn.connected){
+            yield return null;
+        }
         if(conn.socketConnection != null){
             messages.AddMessageToChat("Connection to server successfull.");
             conn.SendMessageToServer("Login:"+username.text+","+password.text);
-        }else{
-            messages.AddMessageToChat("Timeout connecting to server");
         }
     }
 }

@@ -11,6 +11,7 @@ public class ConnectionManager : MonoBehaviour
 {
     public string ipaddr = "127.0.0.1";
     public int port = 30069;
+	public float timeout_seconds = 10f;
 
     public TcpClient socketConnection;
     public Thread clientRecieveThread;
@@ -30,14 +31,22 @@ public class ConnectionManager : MonoBehaviour
 	/// </summary> 
     public void ConnectToTCPServer(){
         try {
-			clientRecieveThread = new Thread (new ThreadStart(ListenForData));
-			clientRecieveThread.IsBackground = true;
-			clientRecieveThread.Start();
+			if(socketConnection == null){
+				clientRecieveThread = new Thread (new ThreadStart(ListenForData));
+				clientRecieveThread.IsBackground = true;
+				clientRecieveThread.Start();
+			}else{
+				messages.AddMessageToChat("Connection already stablished");
+			}
 		}
 		catch (Exception e) { 			
 			Debug.LogException(e, this);
 		}
-		StartCoroutine(AwaitSocketForSeconds(1.5f));
+
+		Coroutine rts = StartCoroutine(AwaitForConnection());
+		Coroutine acssl = StartCoroutine(loginManager.AwaitConnectionStablishmentAndSendLogin());
+		Coroutine[] rutines = {rts, acssl};
+		StartCoroutine(TimeOutEvent(rutines, connected));
     }
 	
 	public IEnumerator MesaggeOnMainThread(string message) {
@@ -49,13 +58,26 @@ public class ConnectionManager : MonoBehaviour
 		dispatcher.Enqueue(MesaggeOnMainThread(message));
 	}
 
-	public IEnumerator AwaitSocketForSeconds(float seconds){
+	public IEnumerator TimeOutEvent(Coroutine[] routines, bool flag){
+		yield return new WaitForSeconds(timeout_seconds);
+		foreach (var r in routines)
+		{
+			StopCoroutine(r);
+		}
+		if(!flag){
+			MainThreadMessage("Timeout...");
+		}
+	}
+
+	public IEnumerator AwaitForConnection(){
 		while(socketConnection == null){
-			yield return new WaitForSeconds(seconds);
+			// yield return new WaitForSeconds(seconds);
+			yield return null;
 		}
 		
 		while(!socketConnection.Connected){
-			yield return new WaitForSeconds(seconds);
+			// yield return new WaitForSeconds(seconds);
+			yield return null;
 		}
 		
 		connected = true;
@@ -109,6 +131,7 @@ public class ConnectionManager : MonoBehaviour
 				// Write byte array to socketConnection stream.                 
 				stream.Write(clientMessageAsByteArray, 0, clientMessageAsByteArray.Length);                 
 				Debug.Log("Client sent message "+ clientMessage);
+				MainThreadMessage("Client sent message: " + clientMessage);         
 			}         
 		} 		
 		catch (SocketException socketException) {
