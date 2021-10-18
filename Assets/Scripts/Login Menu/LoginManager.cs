@@ -41,6 +41,14 @@ public class LoginManager : MonoBehaviour
         }
     }
 
+    public void RemoveLoginPanelAndLoadMainMenu(){
+        foreach (Transform child in this.gameObject.transform)
+        {
+            child.gameObject.SetActive(false);
+        }
+        //DO MORE STUFF
+    }
+
     public IEnumerator AwaitConnectionStablishmentAndSendLogin(){
         while(!conn.connected){
             yield return null;

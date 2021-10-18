@@ -62,7 +62,7 @@ public class ConnectionManager : MonoBehaviour
 
 	public IEnumerator TimeOutEvent(Coroutine[] routines, int flagIndex, bool expected){
 		yield return new WaitForSeconds(timeout_seconds);
-		
+
 		Debug.Log("Flag value after login is: " + flags[flagIndex] + " and connected value is: " + connected);
 
 		foreach (var r in routines)
@@ -159,8 +159,7 @@ public class ConnectionManager : MonoBehaviour
 		}catch (Exception e){
 			code = "400";
 			subcode = code[1] + "" + code[2];
-			info = m[1];
-			ErrorHandler(code, info);
+			info = "error handling response, generated the following exception\n"+ e.ToString();
 		}
 		
 
@@ -201,7 +200,9 @@ public class ConnectionManager : MonoBehaviour
 			case "01":
 				string[] status_usr = info.Split(';');
 				if(status_usr[0] == "accepted"){
-					Debug.Log("log the user in.");
+					// Debug.Log("log the user in.");
+					System.Action p = loginManager.RemoveLoginPanelAndLoadMainMenu;
+					dispatcher.Enqueue(p);
 					MainThreadMessage("Success!");
 				}
 				if(status_usr[0] == "rejected"){
