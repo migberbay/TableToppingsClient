@@ -7,7 +7,7 @@ using UIChat;
 
 public class LoginManager : MonoBehaviour
 {
-    public InputField username, password, IP_addr, port;
+    public TMPro.TMP_InputField username, password, IP_addr, port;
     public Button loginButton;
     public ConnectionManager conn;
 	public MessagesController messages;

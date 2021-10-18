@@ -11,18 +11,20 @@ public class ConnectionManager : MonoBehaviour
 {
     public string ipaddr = "127.0.0.1";
     public int port = 30069;
-	public float timeout_seconds = 10f;
+	public float timeout_seconds = 5f;
 
     public TcpClient socketConnection;
     public Thread clientRecieveThread;
 	public LoginManager loginManager;
 	public bool connected = false;
+	public bool[] flags;
 	MessagesController messages;
 	public UnityMainThreadDispatcher dispatcher;
 
 	private void Start() {
 		DontDestroyOnLoad(this.gameObject);
 		messages = loginManager.messages;
+		flags = new bool[] {connected}; // add more as needed.
 	}
 
     /// <summary> 	
@@ -46,7 +48,7 @@ public class ConnectionManager : MonoBehaviour
 		Coroutine rts = StartCoroutine(AwaitForConnection());
 		Coroutine acssl = StartCoroutine(loginManager.AwaitConnectionStablishmentAndSendLogin());
 		Coroutine[] rutines = {rts, acssl};
-		StartCoroutine(TimeOutEvent(rutines, connected));
+		StartCoroutine(TimeOutEvent(rutines, 0, true)); // stop the routines if connected flag is not true after 5 seconds.
     }
 	
 	public IEnumerator MesaggeOnMainThread(string message) {
@@ -58,13 +60,17 @@ public class ConnectionManager : MonoBehaviour
 		dispatcher.Enqueue(MesaggeOnMainThread(message));
 	}
 
-	public IEnumerator TimeOutEvent(Coroutine[] routines, bool flag){
+	public IEnumerator TimeOutEvent(Coroutine[] routines, int flagIndex, bool expected){
 		yield return new WaitForSeconds(timeout_seconds);
+		
+		Debug.Log("Flag value after login is: " + flags[flagIndex] + " and connected value is: " + connected);
+
 		foreach (var r in routines)
 		{
 			StopCoroutine(r);
 		}
-		if(!flag){
+
+		if(flags[flagIndex] != expected){
 			MainThreadMessage("Timeout...");
 		}
 	}
