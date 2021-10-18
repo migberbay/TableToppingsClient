@@ -8,7 +8,8 @@ using UIChat;
 public class LoginManager : MonoBehaviour
 {
     public TMPro.TMP_InputField username, password, IP_addr, port;
-    public Button loginButton;
+    public Button loginButton, logoutButton;
+    public TMPro.TMP_Text loggedUserText;
     public ConnectionManager conn;
 	public MessagesController messages;
 
@@ -41,12 +42,21 @@ public class LoginManager : MonoBehaviour
         }
     }
 
-    public void RemoveLoginPanelAndLoadMainMenu(){
+    public void Logout(){
+        Debug.Log("Logging the user out.");
+    }
+
+    public IEnumerator LoadMainMenu(){
+        // REMOVE LOGIN PANEL
         foreach (Transform child in this.gameObject.transform)
         {
             child.gameObject.SetActive(false);
         }
-        //DO MORE STUFF
+        // Add user info to logout panel and load it.
+        loggedUserText.text = conn.logged.username + "("+conn.logged.type+")";
+        logoutButton.onClick.AddListener(Logout);
+
+        yield return null;
     }
 
     public IEnumerator AwaitConnectionStablishmentAndSendLogin(){

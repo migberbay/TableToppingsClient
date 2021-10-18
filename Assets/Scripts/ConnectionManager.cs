@@ -20,6 +20,12 @@ public class ConnectionManager : MonoBehaviour
 	public bool[] flags;
 	MessagesController messages;
 	public UnityMainThreadDispatcher dispatcher;
+	public user logged;
+
+	public class user{
+		public int id;
+		public string type, username;
+	}
 
 	private void Start() {
 		DontDestroyOnLoad(this.gameObject);
@@ -50,6 +56,10 @@ public class ConnectionManager : MonoBehaviour
 		Coroutine[] rutines = {rts, acssl};
 		StartCoroutine(TimeOutEvent(rutines, 0, true)); // stop the routines if connected flag is not true after 5 seconds.
     }
+
+	public void DisconnectFromTcpServer(){
+		SendMessageToServer("Logout:");
+	}
 	
 	public IEnumerator MesaggeOnMainThread(string message) {
 		messages.AddMessageToChat(message);
@@ -197,12 +207,16 @@ public class ConnectionManager : MonoBehaviour
 	private void ConnectionSubcodeHandler(string subcode, string info){
 		switch (subcode)
 		{
-			case "01":
+			case "01"://LoginHandler
 				string[] status_usr = info.Split(';');
 				if(status_usr[0] == "accepted"){
 					// Debug.Log("log the user in.");
-					System.Action p = loginManager.RemoveLoginPanelAndLoadMainMenu;
-					dispatcher.Enqueue(p);
+					var usr_info = status_usr[1].Split(',');
+					logged.id = int.Parse(usr_info[0]);
+					logged.type = usr_info[1];
+					logged.username = usr_info[2];
+
+					dispatcher.Enqueue(loginManager.LoadMainMenu());
 					MainThreadMessage("Success!");
 				}
 				if(status_usr[0] == "rejected"){
@@ -210,7 +224,9 @@ public class ConnectionManager : MonoBehaviour
 					MainThreadMessage("Incorrect credentials, please try again...");
 				}
 				break;
+			case "02"://Logout
 
+				break;
 			default:
 				MainThreadMessage("subcode not handled.");
 				break;
