@@ -12,6 +12,8 @@ public class LoginManager : MonoBehaviour
     public TMPro.TMP_Text loggedUserText;
     public ConnectionManager conn;
 	public MessagesController messages;
+    public GameObject mainMenuGO;
+    public MainMenuController mainMenuController;
 
 
     public void Login(){
@@ -42,19 +44,20 @@ public class LoginManager : MonoBehaviour
         }
     }
 
-    public void Logout(){
-        Debug.Log("Logging the user out.");
-    }
-
     public IEnumerator LoadMainMenu(){
-        // REMOVE LOGIN PANEL
-        foreach (Transform child in this.gameObject.transform)
-        {
-            child.gameObject.SetActive(false);
-        }
+        // Set Main Menu active and remove login form.
+        this.gameObject.SetActive(false);
+        mainMenuGO.SetActive(true);
+
         // Add user info to logout panel and load it.
         loggedUserText.text = conn.logged.username + "("+conn.logged.type+")";
-        logoutButton.onClick.AddListener(Logout);
+
+        // Load the corresponding menu
+        if(conn.logged.type == "master"){
+            // handled by the conn manager.
+            conn.SendMessageToServer("003:"+conn.logged.id);
+        }
+
 
         yield return null;
     }

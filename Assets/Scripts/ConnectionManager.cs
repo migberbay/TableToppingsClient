@@ -16,6 +16,7 @@ public class ConnectionManager : MonoBehaviour
     public TcpClient socketConnection;
     public Thread clientRecieveThread;
 	public LoginManager loginManager;
+	public MainMenuController mmctr;
 	public bool connected = false;
 	public bool[] flags;
 	MessagesController messages;
@@ -56,10 +57,6 @@ public class ConnectionManager : MonoBehaviour
 		Coroutine[] rutines = {rts, acssl};
 		StartCoroutine(TimeOutEvent(rutines, 0, true)); // stop the routines if connected flag is not true after 5 seconds.
     }
-
-	public void DisconnectFromTcpServer(){
-		SendMessageToServer("Logout:");
-	}
 	
 	public IEnumerator MesaggeOnMainThread(string message) {
 		messages.AddMessageToChat(message);
@@ -210,8 +207,9 @@ public class ConnectionManager : MonoBehaviour
 			case "01"://LoginHandler
 				string[] status_usr = info.Split(';');
 				if(status_usr[0] == "accepted"){
-					// Debug.Log("log the user in.");
 					var usr_info = status_usr[1].Split(',');
+					logged = new user();
+
 					logged.id = int.Parse(usr_info[0]);
 					logged.type = usr_info[1];
 					logged.username = usr_info[2];
@@ -224,8 +222,14 @@ public class ConnectionManager : MonoBehaviour
 					MainThreadMessage("Incorrect credentials, please try again...");
 				}
 				break;
-			case "02"://Logout
 
+			case "02"://Logout
+				loginManager.gameObject.SetActive(true);
+        		mmctr.gameObject.SetActive(false);
+				break;
+
+			case"03":
+				loginManager.mainMenuController.LoadMainMenuForMaster(info);
 				break;
 			default:
 				MainThreadMessage("subcode not handled.");
