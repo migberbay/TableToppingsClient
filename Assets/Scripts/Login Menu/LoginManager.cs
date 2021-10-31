@@ -58,7 +58,6 @@ public class LoginManager : MonoBehaviour
             conn.SendMessageToServer("003:"+conn.logged.id);
         }
 
-
         yield return null;
     }
 
@@ -70,5 +69,14 @@ public class LoginManager : MonoBehaviour
             messages.AddMessageToChat("Connection to server successfull.");
             conn.SendMessageToServer("Login:"+username.text+","+password.text);
         }
+    }
+
+    public IEnumerator activeStateChange(){
+        if(this.gameObject.activeSelf){
+            this.gameObject.SetActive(false);
+        }else{
+            this.gameObject.SetActive(true);
+        }
+        yield return null;
     }
 }

@@ -22,11 +22,29 @@ public class ConnectionManager : MonoBehaviour
 	MessagesController messages;
 	public UnityMainThreadDispatcher dispatcher;
 	public user logged;
+	public world loadedWorld;
+	public List<scene> worldScenes;
 
+	[Serializable]
 	public class user{
 		public int id;
 		public string type, username;
 	}
+
+	[Serializable]
+	public class world{
+        public int id;
+        public string name;
+        public int owner;
+		public int[] players;
+    }
+
+	[Serializable]
+	public class scene{
+        public int id;
+        public string name;
+        public int world;
+    }
 
 	private void Start() {
 		DontDestroyOnLoad(this.gameObject);
@@ -115,6 +133,7 @@ public class ConnectionManager : MonoBehaviour
 						// Convert byte array to string message. 						
 						string serverMessage = Encoding.ASCII.GetString(incommingData); 						
 						Debug.Log("server message received as: " + serverMessage); 
+						MainThreadMessage("server sent message: " + serverMessage);
 						ResponseHandler(serverMessage);					
 					} 				
 				} 			
@@ -122,6 +141,7 @@ public class ConnectionManager : MonoBehaviour
 		}         
 		catch (SocketException socketException) {             
 			Debug.Log("Socket exception: " + socketException);
+			MainThreadMessage("Socket exception: " + socketException);
 		}     
 	}
 
@@ -157,8 +177,10 @@ public class ConnectionManager : MonoBehaviour
 	/// Handle the different Server responses. 	
 	/// </summary>
 	private void ResponseHandler(string message){
-			var m = message.Split(':');
+			char[] separator = {':'};
+			String[] m = message.Split(separator, 2, StringSplitOptions.None);
 			string code, subcode, info;
+			Debug.Log(m[0]);
 		try{
 			code = m[0];
 			subcode = code[1] + "" + code[2];
@@ -169,7 +191,6 @@ public class ConnectionManager : MonoBehaviour
 			info = "error handling response, generated the following exception\n"+ e.ToString();
 		}
 		
-
 		// codes:
 		// 0XX -> connection codes.
 		// 1XX -> actions (in game operations).
@@ -204,7 +225,7 @@ public class ConnectionManager : MonoBehaviour
 	private void ConnectionSubcodeHandler(string subcode, string info){
 		switch (subcode)
 		{
-			case "01"://LoginHandler
+			case "01"://Login
 				string[] status_usr = info.Split(';');
 				if(status_usr[0] == "accepted"){
 					var usr_info = status_usr[1].Split(',');
@@ -224,12 +245,45 @@ public class ConnectionManager : MonoBehaviour
 				break;
 
 			case "02"://Logout
-				loginManager.gameObject.SetActive(true);
-        		mmctr.gameObject.SetActive(false);
+				//Changes the state of the gameobjects from active to inactive or viceversa.
+				dispatcher.Enqueue(loginManager.activeStateChange());
+				dispatcher.Enqueue(mmctr.activeStateChange());
+				
+				// loginManager.gameObject.SetActive(true);
+        		// mmctr.gameObject.SetActive(false);
 				break;
 
-			case"03":
-				loginManager.mainMenuController.LoadMainMenuForMaster(info);
+			case "03": //World Information for master.
+				Debug.Log("world information recieved: " + info);
+				MainThreadMessage("world information recieved: " + info);
+				char[] separators = {'}'};
+				var worlds_text = info.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+				List<world> worldsToSend = new List<world>();
+				
+				foreach (var w in worlds_text)
+				{
+					Debug.Log("trying to parse: " + w+"}");
+					var worldToSend = JsonUtility.FromJson<world>(w+"}");
+					worldsToSend.Add(worldToSend);
+				}
+
+				dispatcher.Enqueue(loginManager.mainMenuController.LoadMainMenuForMaster(worldsToSend));
+				break;
+
+			case "04": // Loaded world accepted.
+				worldScenes =  new List<scene>();
+				char[] sep = {'}'};
+				var worlds_and_scenes = info.Split(sep, StringSplitOptions.RemoveEmptyEntries);
+				
+				MainThreadMessage("loading world "+ worlds_and_scenes[0] +"}");
+				loadedWorld = JsonUtility.FromJson<world>(worlds_and_scenes[0]+"}");
+
+				for (int i = 1; i < worlds_and_scenes.Length; i++)
+				{
+					worldScenes.Add(JsonUtility.FromJson<scene>(worlds_and_scenes[i]+"}"));
+				}
+
+				dispatcher.Enqueue(mmctr.LoadWorldInformation());
 				break;
 			default:
 				MainThreadMessage("subcode not handled.");
