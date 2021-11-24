@@ -4136,6 +4136,22 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4971623348224847270, guid: b081b9d334bf1604c8d54d93a44e966e, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.005
+      objectReference: {fileID: 0}
+    - target: {fileID: 4971623348224847270, guid: b081b9d334bf1604c8d54d93a44e966e, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.008
+      objectReference: {fileID: 0}
+    - target: {fileID: 6824272765589796217, guid: b081b9d334bf1604c8d54d93a44e966e, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.002
+      objectReference: {fileID: 0}
+    - target: {fileID: 6824272765589796217, guid: b081b9d334bf1604c8d54d93a44e966e, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.003
+      objectReference: {fileID: 0}
     - target: {fileID: 8478218010055517697, guid: b081b9d334bf1604c8d54d93a44e966e, type: 3}
       propertyPath: m_Name
       value: Furry

@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="main_actor_menu" style="height: 800px; width: 600px; background-color: rgb(255, 255, 255); align-items: center; flex-basis: 600px; margin-left: 0; margin-right: 0; padding-left: 10px; padding-right: 10px; padding-top: 0; padding-bottom: 10px; position: absolute; margin-top: 0; margin-bottom: 0; top: 132px; left: 636px; background-image: url(&apos;/Assets/Images/Kraft-Pattern-15.jpg&apos;);">
+        <ui:VisualElement name="header" style="width: 600px; height: 34px; background-color: rgb(123, 71, 71); left: initial;">
+            <ui:Button text="user.name" display-tooltip-when-elided="true" name="drag_button" style="height: 30px; width: 510px; background-color: rgb(144, 74, 74);" />
+            <ui:Button text="X" display-tooltip-when-elided="true" name="close_button" tooltip="Close the window" style="height: 30px; width: 35px; position: absolute; top: 0; left: 560px; align-items: flex-end; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); background-color: rgb(217, 36, 36); justify-content: flex-start; flex-direction: column; font-size: 24px; -unity-font-style: bold;" />
+            <ui:Button text="__" display-tooltip-when-elided="true" name="minimize_button" tooltip="Minimize the window" style="height: 30px; width: 35px; position: absolute; top: 0; left: 520px; align-items: flex-end; border-left-color: rgb(0, 0, 0); border-right-color: rgb(0, 0, 0); border-top-color: rgb(0, 0, 0); border-bottom-color: rgb(0, 0, 0); background-color: rgb(217, 36, 36); justify-content: flex-start; flex-direction: column; font-size: 24px; -unity-font-style: bold;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="content" style="height: 777px; width: 586px; align-items: center;">
+            <ui:ListView focusable="true" text="${actor.name}" show-border="true" reorderable="true" horizontal-scrolling="false" selection-type="Single" show-alternating-row-backgrounds="None" style="height: 234px; width: 578px;" />
+            <ui:Button text="Start new game" display-tooltip-when-elided="true" style="height: 75px; width: 268px;" />
+            <ui:Label text="Label" display-tooltip-when-elided="true" />
+            <ui:Foldout text="user.name" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
