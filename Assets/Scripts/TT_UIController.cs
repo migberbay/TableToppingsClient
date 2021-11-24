@@ -7,7 +7,7 @@ public class TT_UIController : MonoBehaviour
 {
     public Button dragButton, minimizeButton, closeButton;
     public UnityEngine.UIElements.VisualElement content, root, main_actor_menu;
-    float mouse_delta_x = 0, mouse_delta_y = 0;
+    float mouse_pos_prev_x, mouse_pos_prev_y = 0;
     bool isMinimized;
 
     int originalHeight = 0;
@@ -27,9 +27,11 @@ public class TT_UIController : MonoBehaviour
     // Update is called once per frame
     void Update(){
         if(dragButton.HasMouseCapture()){
-            root.style.top = Input.mousePosition.x;
-            root.style.left = Input.mousePosition.y;
+            main_actor_menu.style.top = main_actor_menu.style.top.value.value + (mouse_pos_prev_y - Input.mousePosition.y);
+            main_actor_menu.style.left = main_actor_menu.style.left.value.value - (mouse_pos_prev_x - Input.mousePosition.x);
         }
+        mouse_pos_prev_x = Input.mousePosition.x;
+        mouse_pos_prev_y = Input.mousePosition.y;
     }
 
     private void MinimizeMenu(){
