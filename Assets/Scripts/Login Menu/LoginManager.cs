@@ -36,7 +36,6 @@ public class LoginManager : MonoBehaviour
         if(conn.socketConnection == null){
             Debug.Log("Connecting to server.");
             messages.AddMessageToChat("Connecting to server...");
-            // Coroutine r = StartCoroutine(AwaitConnectionStablishmentAndSendLogin());
             conn.ConnectToTCPServer();
         }else{
             Debug.Log("Already connected to server.");

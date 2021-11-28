@@ -11,8 +11,6 @@ public class MainMenuController : MonoBehaviour
     public GameObject worldButtonPrefab;
     public GameObject worldsMenu, optionsMenu;
 
-    
-
     public void Logout(){
         conn.SendMessageToServer("Logout:"+conn.logged.id);
     }
@@ -41,9 +39,9 @@ public class MainMenuController : MonoBehaviour
         {
             var instance = Instantiate(worldButtonPrefab);
             instance.transform.parent = worldGrid.transform;
-            instance.GetComponentInChildren<Text>().text = item.name;
+            instance.GetComponentInChildren<Text>().text = item.Name;
             var button = instance.GetComponent<Button>();
-            button.onClick.AddListener(() => {LoadWorld(item.id);});
+            button.onClick.AddListener(() => {LoadWorld(item.ID);});
         }
         yield return null;
     }

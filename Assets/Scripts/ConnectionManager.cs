@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using UnityEngine;
 using UIChat;
+using Newtonsoft.Json.Linq;
 
 public class ConnectionManager : MonoBehaviour
 {
@@ -23,7 +24,6 @@ public class ConnectionManager : MonoBehaviour
 	public UnityMainThreadDispatcher dispatcher;
 	public user logged;
 	public world loadedWorld;
-	public List<scene> worldScenes;
 
 	[Serializable]
 	public class user{
@@ -33,17 +33,19 @@ public class ConnectionManager : MonoBehaviour
 
 	[Serializable]
 	public class world{
-        public int id;
-        public string name;
+        public int ID;
+        public string System;
+		public string Name;
         public int owner;
 		public int[] players;
+		public scene[] scenes;
     }
 
 	[Serializable]
 	public class scene{
-        public int id;
-        public string name;
-        public int world;
+        public int ID;
+        public string Name;
+		public string FilePath;
     }
 
 	private void Start() {
@@ -256,14 +258,15 @@ public class ConnectionManager : MonoBehaviour
 			case "03": //World Information for master.
 				Debug.Log("world information recieved: " + info);
 				MainThreadMessage("world information recieved: " + info);
-				char[] separators = {'}'};
-				var worlds_text = info.Split(separators, StringSplitOptions.RemoveEmptyEntries);
 				List<world> worldsToSend = new List<world>();
+
+				JObject worlds = JObject.Parse(info);
 				
-				foreach (var w in worlds_text)
+				foreach (var w in worlds["worlds"])
 				{
-					Debug.Log("trying to parse: " + w+"}");
-					var worldToSend = JsonUtility.FromJson<world>(w+"}");
+					string worldString = w.ToString();
+					Debug.Log(worldString);
+					var worldToSend = JsonUtility.FromJson<world>(worldString);
 					worldsToSend.Add(worldToSend);
 				}
 
@@ -271,18 +274,10 @@ public class ConnectionManager : MonoBehaviour
 				break;
 
 			case "04": // Loaded world accepted.
-				worldScenes =  new List<scene>();
-				char[] sep = {'}'};
-				var worlds_and_scenes = info.Split(sep, StringSplitOptions.RemoveEmptyEntries);
-				
-				MainThreadMessage("loading world "+ worlds_and_scenes[0] +"}");
-				loadedWorld = JsonUtility.FromJson<world>(worlds_and_scenes[0]+"}");
-
-				for (int i = 1; i < worlds_and_scenes.Length; i++)
-				{
-					worldScenes.Add(JsonUtility.FromJson<scene>(worlds_and_scenes[i]+"}"));
-				}
-
+				Debug.Log("World information recieved is: "+ info);
+				MainThreadMessage("scene information recieved is: "+ info);
+				loadedWorld = JsonUtility.FromJson<world>(info);
+				Debug.Log("Loaded world => ID:" + loadedWorld.ID +  " Name:"  +loadedWorld.Name);
 				dispatcher.Enqueue(mmctr.LoadWorldInformation());
 				break;
 			default:
