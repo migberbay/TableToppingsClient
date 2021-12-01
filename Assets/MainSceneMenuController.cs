@@ -18,6 +18,6 @@ public class MainSceneMenuController : MonoBehaviour
 
     public void SpawnNewMenu(){
         var menuInstance = Instantiate(movableMenuPrefab);
-        var uiDoc = menuInstance.GetComponent<UIDocument>();
+        var uiDoc = menuInstance.GetComponent<UnityEngine.UIElements.UIDocument>();
     }
 }
