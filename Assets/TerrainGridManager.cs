@@ -1,6 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine; 
+using System;
+using System.IO;
+using System.IO.Compression;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 
 public class TerrainGridManager : MonoBehaviour
 {
@@ -78,9 +83,10 @@ public class TerrainGridManager : MonoBehaviour
             // and finally assign the new splatmap to the terrainData:
             tData.SetAlphamaps(0, 0, splatMapData);
         }
-   
+
         AddSupportingWallsAndSetCameraLimiter(tData);
-        DrawGrid(tData);
+        // DrawGrid(tData);
+        SaveDetailsIntoCompressedArray(tData);
     }
 
     private void AddSupportingWallsAndSetCameraLimiter(TerrainData tData){
@@ -120,6 +126,11 @@ public class TerrainGridManager : MonoBehaviour
                 wallinstance.transform.localScale = scale2;
             }
         }
+
+        // Camera limiter
+        cameraLimitSphere.transform.position = new Vector3(width/2,50,length/2-15);
+        cameraLimitSphere.transform.localScale = new Vector3(width,100,length);
+
     }
 
     // we do a series of raycasts and use the results to draw the grid.
@@ -131,11 +142,44 @@ public class TerrainGridManager : MonoBehaviour
         // var gridMesh = grid.GetComponent<MeshCollider>();
         // var mesh = grid.GetComponent<MeshFilter>().mesh;
 
+        int[,] heights = CalculateHeightMatrix((int)width,(int)length, maxHeight);
+
+        Material whiteDiffuseMat = new Material(Shader.Find("Unlit/Texture"));
+        
 
         for(int x = 0; x < width; x++){
-            for(int y = 0; y < width; y++){
-                var lineInstance = grid.AddComponent<LineRenderer>();
+            GameObject o = new GameObject();
+            o.transform.parent = grid.transform;
+            var lineInstance = o.AddComponent<LineRenderer>();
+            lineInstance.positionCount = (int)length; 
+            lineInstance.startWidth = 0.025f;
+            lineInstance.endWidth = 0.025f;
+            lineInstance.material = whiteDiffuseMat;
+            Vector3[] positions = new Vector3[(int)length];
+
+            for(int y = 0; y < length; y ++){
+                var p = new Vector3(x,heights[x,y],y);
+                positions[y] = p;
             }
+            lineInstance.SetPositions(positions);
+        }
+
+        for(int y = 0; y < length; y++){
+            GameObject o = new GameObject();
+            o.transform.parent = grid.transform;
+            var lineInstance = o.AddComponent<LineRenderer>();
+            lineInstance.positionCount = (int)width; 
+            lineInstance.startWidth = 0.025f;
+            lineInstance.endWidth = 0.025f;
+            lineInstance.material = whiteDiffuseMat;
+            Vector3[] positions = new Vector3[(int)width];
+
+            for(int x = 0; x < width; x ++){
+                var p = new Vector3(x,heights[x,y],y);
+                positions[x] = p;
+            }
+
+            lineInstance.SetPositions(positions);
         }
 
     }
@@ -146,11 +190,14 @@ public class TerrainGridManager : MonoBehaviour
         for (int i = 0; i < width; i++){
             for (int j = 0; j < length; j++){
                 RaycastHit[] hits = new RaycastHit[5];
-                Physics.Raycast(new Vector3(i,0,j), Vector3.up, out hits[0], maxHeight);
-                Physics.Raycast(new Vector3(i+1,0,j), Vector3.up, out hits[1], maxHeight);
-                Physics.Raycast(new Vector3(i,0,j+1), Vector3.up, out hits[2], maxHeight);
-                Physics.Raycast(new Vector3(i+1,0,j+1), Vector3.up, out hits[3], maxHeight);
-                Physics.Raycast(new Vector3(i+0.5f,0,j+0.5f), Vector3.up, out hits[4], maxHeight);
+                Physics.Raycast(new Vector3(i,maxHeight,j), Vector3.down, out hits[0], maxHeight);
+                Physics.Raycast(new Vector3(i+1,maxHeight,j), Vector3.down, out hits[1], maxHeight);
+                Physics.Raycast(new Vector3(i,maxHeight,j+1), Vector3.down, out hits[2], maxHeight);
+                Physics.Raycast(new Vector3(i+1,maxHeight,j+1), Vector3.down, out hits[3], maxHeight);
+                Physics.Raycast(new Vector3(i+0.5f,maxHeight,j+0.5f), Vector3.down, out hits[4], maxHeight);
+
+                // Debug.DrawRay(new Vector3(i+0.5f,maxHeight,j+0.5f), Vector3.down *10, Color.white, 10f, false);
+
                 var heightAverage = 0f;
                 foreach (var h in hits)
                 {
@@ -164,9 +211,18 @@ public class TerrainGridManager : MonoBehaviour
         return res;
     }
 
-    private void AddNewGridSquare(int x , int y){
+    private void SaveDetailsIntoCompressedArray(TerrainData tData){
+        
+        int[,] bushLayer1 =  tData.GetDetailLayer(0,0,tData.detailWidth,tData.detailHeight,0); // gets the enterity of layer 0
+        int[,] bushLayer2 =  tData.GetDetailLayer(0,0,tData.detailWidth,tData.detailHeight,1); // gets the enterity of layer 0
 
+        var width = bushLayer1.GetLength(0);
+        var length = bushLayer1.GetLength(1);
+        
+        // var bytes = Encoding.UTF8.GetBytes(s);
+
+        // https://www.psilocybegames.com/tutorials/saveloadmultiarray/HowToSaveLoadAnArrayWithCompression.cs
+        // https://www.youtube.com/watch?v=AFmk70693Zw
     }
-
     
 }
