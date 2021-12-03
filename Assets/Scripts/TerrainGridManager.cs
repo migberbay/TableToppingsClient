@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using UnityEngine.AI;
 
 public class TerrainGridManager : MonoBehaviour
 {
@@ -15,10 +16,12 @@ public class TerrainGridManager : MonoBehaviour
     public float terrainObjectLength = 100, terrainObjectWidth = 100, terrainMaxHeight = 10;
 
     public GameObject supportingWallPrefab, cameraLimitSphere, grid;
+    public NavMeshSurface surface;
 
     private void Start(){
         Terrain terrain = this.GetComponent<Terrain>();
         TerrainData tData = terrain.terrainData;
+        surface = this.GetComponent<NavMeshSurface>();
 
         tData.size = new Vector3(terrainObjectWidth,terrainMaxHeight,terrainObjectLength);
         
@@ -50,6 +53,8 @@ public class TerrainGridManager : MonoBehaviour
             }
 
             tData.SetHeights(0,0,heightMatrix);
+
+            GenerateTerrainNavMesh();
         }
 
         if(paintTerrainOnLoad){
@@ -91,6 +96,10 @@ public class TerrainGridManager : MonoBehaviour
 
         //SaveDetailsIntoFile(tData, path);
         LoadDetailsFromFile(tData, path);
+    }
+    
+    private void GenerateTerrainNavMesh(){
+        surface.BuildNavMesh();
     }
 
     private void AddSupportingWallsAndSetCameraLimiter(TerrainData tData){
@@ -198,7 +207,7 @@ public class TerrainGridManager : MonoBehaviour
                 // Physics.Raycast(new Vector3(i+1,maxHeight,j), Vector3.down, out hits[1], maxHeight);
                 // Physics.Raycast(new Vector3(i,maxHeight,j+1), Vector3.down, out hits[2], maxHeight);
                 // Physics.Raycast(new Vector3(i+1,maxHeight,j+1), Vector3.down, out hits[3], maxHeight);
-                Physics.Raycast(new Vector3(i+0.5f,maxHeight,j+0.5f), Vector3.down, out hit, maxHeight);
+                Physics.Raycast(new Vector3(i+0.5f,maxHeight,j+0.5f), Vector3.down, out hit, maxHeight, 1<<LayerMask.NameToLayer("Terrain"));
 
                 // Debug.DrawRay(new Vector3(i+0.5f,maxHeight,j+0.5f), Vector3.down *10, Color.white, 10f, false);
 
