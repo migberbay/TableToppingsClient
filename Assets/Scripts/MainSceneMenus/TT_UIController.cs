@@ -29,7 +29,7 @@ public class TT_UIController : MonoBehaviour
     }
 
     void Start(){
-        root = GetComponent<UnityEngine.UIElements.UIDocument>().rootVisualElement;
+        root = GetComponent<UIDocument>().rootVisualElement;
         dragButton  = root.Q<Button>("drag_button");
         minimizeButton = root.Q<Button>("minimize_button");
         closeButton = root.Q<Button>("close_button");
