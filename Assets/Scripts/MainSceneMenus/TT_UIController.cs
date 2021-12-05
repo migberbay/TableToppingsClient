@@ -6,7 +6,11 @@ using UnityEngine.UIElements;
 
 public class TT_UIController : MonoBehaviour
 {
-    Button dragButton, minimizeButton, closeButton;
+    UnitControl uControl;
+    RTSCamera mainCamControl;
+    MainSceneMenuController menuController;
+
+    Button dragButton, minimizeButton, closeButton, useAbilityButton;
     UnityEngine.UIElements.VisualElement content, root, main_actor_menu;
     List<float> foldout_heights;
     List<Foldout> foldouts;
@@ -29,6 +33,13 @@ public class TT_UIController : MonoBehaviour
     }
 
     void Start(){
+        uControl = (UnitControl) GameObject.FindObjectOfType(typeof(UnitControl));
+        mainCamControl = (RTSCamera) GameObject.FindObjectOfType(typeof(RTSCamera));
+        menuController = (MainSceneMenuController) GameObject.FindObjectOfType(typeof(MainSceneMenuController));
+
+        uControl.areControlsActive = false;
+        mainCamControl.areControlsActive = false;
+
         root = GetComponent<UIDocument>().rootVisualElement;
         dragButton  = root.Q<Button>("drag_button");
         minimizeButton = root.Q<Button>("minimize_button");
@@ -36,14 +47,26 @@ public class TT_UIController : MonoBehaviour
         content = root.Q<VisualElement>("content");
         main_actor_menu = root.Q<VisualElement>("main_actor_menu");
 
+        useAbilityButton = root.Q<Button>("use_ability_button");
+
         minimizeButton.clicked += MinimizeMenu;
+        closeButton.clicked += CloseMenu;
+
+        useAbilityButton.clicked += ThrowDice;
     }
 
     // Update is called once per frame
     void Update(){
         if(dragButton.HasMouseCapture()){
-            main_actor_menu.style.top = main_actor_menu.resolvedStyle.top + (mouse_pos_prev_y - Input.mousePosition.y);
-            main_actor_menu.style.left = main_actor_menu.resolvedStyle.left - (mouse_pos_prev_x - Input.mousePosition.x);
+            var new_pos_vert = main_actor_menu.resolvedStyle.top + (mouse_pos_prev_y - Input.mousePosition.y);
+            var new_pos_hor = main_actor_menu.resolvedStyle.left - (mouse_pos_prev_x - Input.mousePosition.x);
+            
+            if(new_pos_vert < Screen.height && new_pos_vert > 0){
+                main_actor_menu.style.top = new_pos_vert;
+            }
+            if(new_pos_hor < Screen.width && new_pos_hor > 0){
+                main_actor_menu.style.left = new_pos_hor;
+            }
         }
         mouse_pos_prev_x = Input.mousePosition.x;
         mouse_pos_prev_y = Input.mousePosition.y;
@@ -72,6 +95,12 @@ public class TT_UIController : MonoBehaviour
         }
     }
 
+    private void CloseMenu(){
+        GameObject.Destroy(this.gameObject);
+        uControl.areControlsActive = true;
+        mainCamControl.areControlsActive = true;
+    }
+
     private void forceFoldoutContract(Foldout f){
         f.RegisterValueChangedCallback((e)=>{
             var fd = (e.target as Foldout);
@@ -95,5 +124,15 @@ public class TT_UIController : MonoBehaviour
                 }
             }
         });
+    }
+
+    // HERE BEGIN THE API FUNCTIONS THE PLAYERS CAN USE WHEN BUILDING THE SYSTEM BINDINGS.
+    // ...
+
+    private void ThrowDice(){
+        // menuController.currentDiceFormula = "1d4 + 1d6 + 1d8 + 1d10 +1d12 + 1d20 + 1d100 + 5";
+        menuController.currentDiceFormula = "12d6";
+
+        menuController.ThrowDice();
     }
 }

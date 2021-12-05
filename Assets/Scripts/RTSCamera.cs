@@ -10,7 +10,13 @@ public class RTSCamera : MonoBehaviour
     public BoxCollider mapLimit;
     public float minY = 20;
 
+    public bool areControlsActive = true;
+
     void Update(){
+        if(!areControlsActive){
+            return;
+        }
+        
         Vector3 pos = transform.position;
         bool moveTop = Input.mousePosition.y >= Screen.height - panBorderThickness;
         bool moveLeft = Input.mousePosition.x <= panBorderThickness;
@@ -19,7 +25,7 @@ public class RTSCamera : MonoBehaviour
 
         float scroll = Input.GetAxis("Mouse ScrollWheel");
         pos.y -= scroll * scrollSpeed * 100f * Time.deltaTime;
-        if(pos.y < 20){pos.y = 20;}
+        if(pos.y < minY){pos.y = minY;}
 
 
         if(moveTop){
@@ -34,8 +40,6 @@ public class RTSCamera : MonoBehaviour
         if(moveDown){
             pos.z += -panSpeed * Time.deltaTime * (pos.y/10);
         }
-        
-
 
         if(mapLimit.bounds.Contains(pos)){
             transform.position = pos;

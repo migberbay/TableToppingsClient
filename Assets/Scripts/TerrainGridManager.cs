@@ -12,13 +12,15 @@ public class TerrainGridManager : MonoBehaviour
 {
     public Texture2D hMap;
     public bool modifyTerrainOnLoad, paintTerrainOnLoad;
-    public float baseHeightFactor = 0.05f, peaksPercentile = 0.75f;
+    public float baseHeightFactor = 0.05f, peaksPercentile = 0.75f, liquidLayerHeightPercent = 0.5f;
     public float terrainObjectLength = 100, terrainObjectWidth = 100, terrainMaxHeight = 10;
 
-    public GameObject supportingWallPrefab, cameraLimitSphere, grid;
+    public GameObject supportingWallPrefab, cameraLimitSphere, grid, LiquidPrefab, LiquidPostProcessing;
     public NavMeshSurface surface;
 
-    private void Start(){
+    public Material[] liquidMaterials;
+
+    private void Start(){ // TODO this shouldn't be done at start, this should be done on scene load.
         Terrain terrain = this.GetComponent<Terrain>();
         TerrainData tData = terrain.terrainData;
         surface = this.GetComponent<NavMeshSurface>();
@@ -35,10 +37,6 @@ public class TerrainGridManager : MonoBehaviour
             for (int y = 0; y < hMap.height ; y++){
                 for (int x = 0; x < hMap.width; x++){
                     heightMatrix[y, x] = hMap.GetPixel(x,y).grayscale + baseHeightFactor;
-                    // if(numprints >= 0 && heightMatrix[y, x] > 0){
-                    //     Debug.Log(heightMatrix[y, x]);
-                    //     numprints--;
-                    // }
                 }
             }
             
@@ -53,8 +51,6 @@ public class TerrainGridManager : MonoBehaviour
             }
 
             tData.SetHeights(0,0,heightMatrix);
-
-            GenerateTerrainNavMesh();
         }
 
         if(paintTerrainOnLoad){
@@ -89,17 +85,34 @@ public class TerrainGridManager : MonoBehaviour
             tData.SetAlphamaps(0, 0, splatMapData);
         }
 
+        GenerateTerrainNavMesh();
+
+        CreateLiquids();
         AddSupportingWallsAndSetCameraLimiter(tData);
         DrawGrid(tData);
 
+
         var path = Application.dataPath + "/GameData/terrain_details.txt";
 
-        //SaveDetailsIntoFile(tData, path);
+        SaveDetailsIntoFile(tData, path);
         LoadDetailsFromFile(tData, path);
+    }
+
+    private void CreateLiquids(){
+        var yPos = liquidLayerHeightPercent*terrainMaxHeight;
+
+        var qIn = Instantiate(LiquidPrefab, new Vector3(terrainObjectWidth/2, yPos, terrainObjectLength/2), Quaternion.identity);
+        qIn.transform.localScale = new Vector3(terrainObjectWidth/50, 1 ,terrainObjectLength/50);
+        qIn.GetComponent<MeshRenderer>().material = liquidMaterials[UnityEngine.Random.Range(0, liquidMaterials.Length)];
+
+        LiquidPostProcessing.transform.position = new Vector3(terrainObjectWidth/2, yPos/2 , terrainObjectLength/2);
+        LiquidPostProcessing.transform.localScale = new Vector3(terrainObjectWidth, yPos ,terrainObjectLength);
     }
     
     private void GenerateTerrainNavMesh(){
+        Debug.Log("re-generating terrain navMesh");
         surface.BuildNavMesh();
+        //TODO: something something obstacles.
     }
 
     private void AddSupportingWallsAndSetCameraLimiter(TerrainData tData){
