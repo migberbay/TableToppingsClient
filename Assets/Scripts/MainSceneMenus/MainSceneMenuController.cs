@@ -113,7 +113,7 @@ public class MainSceneMenuController : MonoBehaviour
         var diceInstance = Instantiate(dices[diceIndex], diceThrower.position, Quaternion.Euler(new Vector3(UnityEngine.Random.Range(0f, 360f), UnityEngine.Random.Range(0f, 360f), UnityEngine.Random.Range(0f, 360f))));
         var rb = diceInstance.GetComponent<Rigidbody>();
 
-        rb.AddRelativeForce(new Vector3(0,0.5f,0.5f) * 10 , ForceMode.Impulse);
+        rb.AddForce(new Vector3(0f,0.5f,0.5f) * 25 , ForceMode.Impulse);
 
         await Task.Delay(1000); // we give it some time before we atart checking rotations
 

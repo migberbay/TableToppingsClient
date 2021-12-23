@@ -43,7 +43,7 @@ public class LoginManager : MonoBehaviour
         }
     }
 
-    public IEnumerator LoadMainMenu(){
+    public IEnumerator LoadMainMenu(){ // Happens when login is accepted.
         // Set Main Menu active and remove login form.
         this.gameObject.SetActive(false);
         mainMenuGO.SetActive(true);

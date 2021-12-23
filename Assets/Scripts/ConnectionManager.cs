@@ -24,6 +24,7 @@ public class ConnectionManager : MonoBehaviour
 	public UnityMainThreadDispatcher dispatcher;
 	public user logged;
 	public world loadedWorld;
+	public FileSync fileSync;
 
 	[Serializable]
 	public class user{
@@ -77,15 +78,6 @@ public class ConnectionManager : MonoBehaviour
 		Coroutine[] rutines = {rts, acssl};
 		StartCoroutine(TimeOutEvent(rutines, 0, true)); // stop the routines if connected flag is not true after 5 seconds.
     }
-	
-	public IEnumerator MesaggeOnMainThread(string message) {
-		messages.AddMessageToChat(message);
-		yield return null;
- 	}
- 
-	public void MainThreadMessage(string message){
-		dispatcher.Enqueue(MesaggeOnMainThread(message));
-	}
 
 	public IEnumerator TimeOutEvent(Coroutine[] routines, int flagIndex, bool expected){
 		yield return new WaitForSeconds(timeout_seconds);
@@ -100,6 +92,15 @@ public class ConnectionManager : MonoBehaviour
 		if(flags[flagIndex] != expected){
 			MainThreadMessage("Timeout...");
 		}
+	}
+	
+	public IEnumerator MesaggeOnMainThread(string message) {
+		messages.AddMessageToChat(message);
+		yield return null;
+ 	}
+ 
+	public void MainThreadMessage(string message){
+		dispatcher.Enqueue(MesaggeOnMainThread(message));
 	}
 
 	public IEnumerator AwaitForConnection(){
@@ -236,9 +237,9 @@ public class ConnectionManager : MonoBehaviour
 					logged.id = int.Parse(usr_info[0]);
 					logged.type = usr_info[1];
 					logged.username = usr_info[2];
-
-					dispatcher.Enqueue(loginManager.LoadMainMenu());
+					
 					MainThreadMessage("Success!");
+					dispatcher.Enqueue(fileSync.SyncFilesWithServer());
 				}
 				if(status_usr[0] == "rejected"){
 					Debug.Log("reject user login.");
