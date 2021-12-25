@@ -1,0 +1,38 @@
+{
+    "TTData": {
+        "files": [],
+        "Data": {
+            "files": [
+                {
+                    "name": "C:\\Users\\Magic Mike\\Desktop\\Master\\TFM\\UnityClient\\TTData\\Data\\blah.json",
+                    "size": 1507,
+                    "lastModified": "25/12/2021 1:04:20"
+                },
+                {
+                    "name": "C:\\Users\\Magic Mike\\Desktop\\Master\\TFM\\UnityClient\\TTData\\Data\\testFile - copia (2).txt",
+                    "size": 0,
+                    "lastModified": "24/12/2021 18:48:34"
+                },
+                {
+                    "name": "C:\\Users\\Magic Mike\\Desktop\\Master\\TFM\\UnityClient\\TTData\\Data\\testFile - copia.txt",
+                    "size": 0,
+                    "lastModified": "24/12/2021 18:48:34"
+                },
+                {
+                    "name": "C:\\Users\\Magic Mike\\Desktop\\Master\\TFM\\UnityClient\\TTData\\Data\\testFile.txt",
+                    "size": 5,
+                    "lastModified": "25/12/2021 0:47:11"
+                }
+            ],
+            "testFolder": {
+                "files": [
+                    {
+                        "name": "C:\\Users\\Magic Mike\\Desktop\\Master\\TFM\\UnityClient\\TTData\\Data\\testFolder\\testFileInSubfolder.txt",
+                        "size": 0,
+                        "lastModified": "24/12/2021 18:48:34"
+                    }
+                ]
+            }
+        }
+    }
+}
