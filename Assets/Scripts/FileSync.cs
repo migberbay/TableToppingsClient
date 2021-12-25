@@ -10,12 +10,15 @@ public class FileSync : MonoBehaviour{
 
     public UnityMainThreadDispatcher dispatcher;
     public LoginManager loginManager;
+    public ConnectionManager connManager;
 
 
     public IEnumerator SyncFilesWithServer(){
         var datadir = Environment.CurrentDirectory + @"\TTData";
         var ftm = new DirectoryManager(datadir);
-        Debug.Log(ftm.ToJson());
+        connManager.SendMessageToServer("005:"+ftm.ToJson().Replace("\n",""));
+
+        //Whenever all the files are synced we then load the menu.
         
         // dispatcher.Enqueue(loginManager.LoadMainMenu());
         yield return null;

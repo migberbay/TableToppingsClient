@@ -149,7 +149,7 @@ public class ConnectionManager : MonoBehaviour
 	}
 
     /// <summary> 	
-	/// Send message to server using socket connection. 	
+	/// Send message to server using socket connection, the message must not contain newline elements.	
 	/// </summary> 	
 	public void SendMessageToServer(string clientMessage) {         
 		if (socketConnection == null) {             
@@ -263,8 +263,7 @@ public class ConnectionManager : MonoBehaviour
 
 				JObject worlds = JObject.Parse(info);
 				
-				foreach (var w in worlds["worlds"])
-				{
+				foreach (var w in worlds["worlds"]){
 					string worldString = w.ToString();
 					Debug.Log(worldString);
 					var worldToSend = JsonUtility.FromJson<world>(worldString);
