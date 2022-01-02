@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class GridDeactivationController : MonoBehaviour
 {
-    public Camera mainCam;
     public GameObject grid;
     public bool gridtoggle = false;
 

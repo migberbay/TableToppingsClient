@@ -29,7 +29,7 @@ public class TerrainGridManager : MonoBehaviour
         
         Debug.Log(" map --> source:" + hMap.width.ToString() + "x" + hMap.height.ToString());
 
-        Camera.allCameras[0].transform.position = new Vector3(terrainObjectWidth/2, 60, terrainObjectLength/3);
+        Camera.allCameras[0].GetComponentInParent<RTSCamera>().transform.position = new Vector3(terrainObjectWidth/2, 60, terrainObjectLength/3);
 
         if(modifyTerrainOnLoad){
             float[,] heightMatrix = new float[hMap.width,hMap.height];
