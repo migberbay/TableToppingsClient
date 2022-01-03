@@ -56,7 +56,7 @@ public class RTSCamera : MonoBehaviour
             
             
             if(Mathf.Abs(deltaX) > Mathf.Abs(deltaY)){
-                this.transform.Rotate(new Vector3(0, deltaX/Screen.width * 125, 0), Space.World);
+                this.transform.Rotate(new Vector3(0, deltaX/Screen.width * -125, 0), Space.World);
             }else{
                 var rotvar = deltaY/Screen.height * 50;
                 var newrot = cameraTransform.rotation.eulerAngles.x + rotvar;

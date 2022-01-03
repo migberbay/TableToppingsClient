@@ -30,7 +30,7 @@ public class MainMenuController : MonoBehaviour
     }
     
     public void LoadGameView(){
-        SceneManager.LoadScene("MainScene");
+        SceneManager.LoadScene("PlayScene");
     }
 
     public IEnumerator LoadMainMenuForMaster(List<ConnectionManager.world> worlds){

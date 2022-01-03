@@ -1,0 +1,23 @@
+﻿#pragma kernel CSMain
+
+half height;
+half angle;
+half2 rotOffset;
+RWTexture2D<half4> heightmap; 
+Texture2D<half4> brush; 
+
+half2 RotateShape(half2 pos, float angle)
+{
+	float s, c;
+	sincos(radians(angle), s, c);
+	float2x2 rotationMatrix = float2x2(c, -s, s, c);
+	return mul(pos.xy - rotOffset, rotationMatrix);
+}
+
+[numthreads(2, 2, 1)] 
+void CSMain(uint2 id : SV_DispatchThreadID)
+{
+	half2 uv = RotateShape(id.xy, angle) + rotOffset;
+	half4 new_heightmap = lerp(heightmap[id.xy], height, brush[uv].w);
+	heightmap[id.xy] = clamp(new_heightmap, 0, .5);
+}

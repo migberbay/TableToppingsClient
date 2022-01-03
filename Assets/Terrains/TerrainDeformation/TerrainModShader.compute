@@ -1,0 +1,11 @@
+﻿#pragma kernel CSMain
+
+RWTexture2D<half4> Result;
+float Height = 0.001;
+
+[numthreads(8, 8, 1)]
+void CSMain(uint3 id : SV_DispatchThreadID)
+{
+	Result[id.xy] += Height;
+	Result[id.xy] = clamp(Result[id.xy], 0, 1);
+}

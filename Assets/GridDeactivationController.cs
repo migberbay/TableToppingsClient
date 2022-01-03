@@ -5,7 +5,7 @@ using UnityEngine;
 public class GridDeactivationController : MonoBehaviour
 {
     public GameObject grid;
-    public bool gridtoggle = false;
+    public bool gridtoggle = false, keyboardActive = true;
 
     void Update()
     {   
@@ -15,7 +15,7 @@ public class GridDeactivationController : MonoBehaviour
             grid.SetActive(false);
         }
 
-        if(Input.GetKeyDown(KeyCode.G)){
+        if(Input.GetKeyDown(KeyCode.G) && keyboardActive){
             gridtoggle = gridtoggle ? false : true;
         }
     }

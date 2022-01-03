@@ -16,6 +16,8 @@ public class MainSceneMenuController : MonoBehaviour
         {"d6", 0}
     };
 
+    public PlaySceneChatController chatController;
+
     public string currentDiceFormula;
 
     public bool diceRolling = false;
@@ -83,6 +85,7 @@ public class MainSceneMenuController : MonoBehaviour
         }
 
         Debug.Log("Dice throw result from formula [" + currentDiceFormula + "] was " + dicetotal.ToString() + "from dice + " + qtity.ToString()); 
+        chatController.PostDiceRoll(dicetotal, currentDiceFormula);
         diceRolling = false;
     }
 
